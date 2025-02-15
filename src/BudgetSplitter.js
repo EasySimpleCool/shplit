@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Container from './components/Container';
 import Category from './components/Category';
-import { formatCurrency } from './hooks/useBudgetCalculator';
-
 const BudgetSplitter = () => {
   const [income, setIncome] = useState(1000);
   const [lastAddedId, setLastAddedId] = useState(null);

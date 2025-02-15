@@ -11,6 +11,7 @@ const CategoryItem = memo(({
   totalBudget
 }) => {
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isAmountFocused, setIsAmountFocused] = useState(false);
   return (
     <div className="flex items-center gap-2 bg-[#0069A4] p-1 rounded-full w-full h-[72px]">
