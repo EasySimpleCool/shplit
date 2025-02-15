@@ -35,7 +35,7 @@ const CategoryItem = memo(({
               setHasStartedTyping(true);
               onNameChange(e.target.value);
             }}
-            className="w-full bg-transparent text-white/50 min-w-0 font-inter text-sm text-center placeholder-white/50 p-0 focus:outline-none"
+            className="w-full bg-transparent text-white/50 min-w-0 font-inter text-base text-center placeholder-white/50 py-2 px-1 focus:outline-none"
             placeholder={hasStartedTyping ? "" : "Item name"}
             autoFocus={isLastAdded}
             onFocus={(e) => {
