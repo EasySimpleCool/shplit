@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { DollarSign, Percent } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import Container from './Container';
 import CategoryItem from './CategoryItem';
 import { useBudgetCalculator, formatCurrency } from '../hooks/useBudgetCalculator';
@@ -12,6 +12,7 @@ const Category = memo(({
   onAddItem,
   onUpdateItem,
   onToggleItemType,
+  onRemoveItem,
   lastAddedId
 }) => {
   const { totalBudget, splitAmount } = useBudgetCalculator(
@@ -52,15 +53,15 @@ const Category = memo(({
             onClick={() => onAddItem(false)}
             className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
           >
-            <Percent className="w-4 h-4 text-white" />
-            Add Split
+            Add Shplit
+            <Plus className="w-4 h-4 text-white" />
           </button>
           <button
-            onClick={() => onAddItem(true)}
+            onClick={onRemoveItem}
             className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
           >
-            <DollarSign className="w-4 h-4 text-white" />
-            Add Dollar
+            Remove Shplit
+            <X className="w-4 h-4 text-white" />
           </button>
         </div>
       </Container>

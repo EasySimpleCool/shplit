@@ -99,6 +99,22 @@ const BudgetSplitter = () => {
     });
   }, [income]); // Add income to dependencies since we use it in calculations
 
+  const removeLastItem = useCallback((categoryName) => {
+    setCategories(prev => {
+      const category = prev[categoryName];
+      const updatedItems = [...category.items];
+      updatedItems.pop(); // Remove the last item
+      
+      return {
+        ...prev,
+        [categoryName]: {
+          ...category,
+          items: updatedItems
+        }
+      };
+    });
+  }, []);
+
   const toggleItemType = useCallback((categoryName, itemId) => {
     setCategories(prev => {
       const category = prev[categoryName];
@@ -161,6 +177,7 @@ const BudgetSplitter = () => {
           onAddItem={(isFixed) => addItem(name, isFixed)}
           onUpdateItem={(value, itemId, isAmount) => updateItem(name, value, itemId, isAmount)}
           onToggleItemType={(itemId) => toggleItemType(name, itemId)}
+          onRemoveItem={() => removeLastItem(name)}
           lastAddedId={lastAddedId}
         />
       ))}
