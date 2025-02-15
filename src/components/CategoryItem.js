@@ -11,6 +11,19 @@ const CategoryItem = memo(({
 }) => {
   return (
     <div className="flex items-center gap-2 bg-[#0069A4] p-2 rounded w-full">
+      <div className="flex gap-2">
+        <button
+          onClick={() => !item.isFixed && onToggleType()}
+          className={`p-2 rounded shrink-0 h-10 w-10 flex items-center justify-center transition-colors ${
+            !item.isFixed 
+              ? 'bg-white' 
+              : 'bg-[#005a8f] hover:bg-[#004a7f]'
+          }`}
+          title="Split Amount"
+        >
+          <Percent className={`w-5 h-5 ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
+        </button>
+      </div>
       <input
         type="text"
         value={item.name}
@@ -50,15 +63,16 @@ const CategoryItem = memo(({
         )}
       </div>
       <button
-        onClick={onToggleType}
-        className="p-2 rounded bg-[#005a8f] hover:bg-[#004a7f] shrink-0 h-10 w-10 flex items-center justify-center"
-        title={item.isFixed ? "Fixed Amount" : "Split Amount"}
-      >
-        {item.isFixed ? 
-          <DollarSign className="w-5 h-5 text-white" /> : 
-          <Percent className="w-5 h-5 text-white" />
-        }
-      </button>
+          onClick={() => item.isFixed && onToggleType()}
+          className={`p-2 rounded shrink-0 h-10 w-10 flex items-center justify-center transition-colors ${
+            item.isFixed 
+              ? 'bg-white' 
+              : 'bg-[#005a8f] hover:bg-[#004a7f]'
+          }`}
+          title="Fixed Amount"
+        >
+          <DollarSign className={`w-5 h-5 ${item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
+        </button>
     </div>
   );
 });
