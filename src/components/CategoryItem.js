@@ -1,78 +1,104 @@
-import React, { memo } from 'react';
-import { DollarSign, Percent, Lock } from 'lucide-react';
+import React, { memo, useState } from 'react';
+import { DollarSign, Percent } from 'lucide-react';
 
-const CategoryItem = memo(({ 
-  item, 
-  onNameChange, 
-  onAmountChange, 
+const CategoryItem = memo(({
+  item,
+  onNameChange,
+  onAmountChange,
   onToggleType,
   isLastAdded,
-  splitAmount 
+  splitAmount,
+  totalBudget
 }) => {
+  const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const [isAmountFocused, setIsAmountFocused] = useState(false);
   return (
-    <div className="flex items-center gap-2 bg-[#0069A4] p-2 rounded w-full">
-      <div className="flex gap-2">
-        <button
-          onClick={() => !item.isFixed && onToggleType()}
-          className={`p-2 rounded shrink-0 h-10 w-10 flex items-center justify-center transition-colors ${
-            !item.isFixed 
-              ? 'bg-white' 
-              : 'bg-[#005a8f] hover:bg-[#004a7f]'
-          }`}
-          title="Split Amount"
-        >
-          <Percent className={`w-5 h-5 ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
-        </button>
-      </div>
-      <input
-        type="text"
-        value={item.name}
-        onChange={(e) => onNameChange(e.target.value)}
-        className="flex-1 p-2 rounded text-black min-w-0"
-        placeholder="Item name"
-        autoFocus={isLastAdded}
-        onFocus={(e) => e.target.select()}
-      />
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="text-white">$</span>
-        {item.isFixed ? (
+    <div className="flex items-center gap-2 bg-[#0069A4] p-1 rounded-full w-full h-[72px]">
+      <button
+        onClick={onToggleType}
+        className={`p-2 rounded-full shrink-0 h-16 w-16 flex flex-col items-center justify-center transition-colors focus:outline-none ${
+          !item.isFixed
+            ? 'bg-white'
+            : 'bg-transparent hover:bg-white/10'
+        }`}
+      >
+        <Percent className={`w-[20px] h-[20px] ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
+        <span className={`font-inter font-normal text-[10px] mt-0.5 ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`}>Shplit</span>
+      </button>
+      <div className="flex-1 flex flex-col items-center justify-center py-2">
+        <div className="w-full">
           <input
-            type="number"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={Math.floor(item.amount)}
+            type="text"
+            value={item.name}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '');
-              onAmountChange(value ? Number(value) : 0);
+              setHasStartedTyping(true);
+              onNameChange(e.target.value);
             }}
-            className="w-24 p-2 rounded text-black border border-transparent focus:border-blue-500 h-10"
-            placeholder="Amount"
+            className="w-full bg-transparent text-white min-w-0 font-inter font-medium text-sm text-center placeholder-white/10 p-0 focus:outline-none"
+            placeholder={hasStartedTyping ? "" : "Item name"}
+            autoFocus={isLastAdded}
+            onFocus={(e) => {
+              // Move cursor to end
+              const value = e.target.value;
+              e.target.value = '';
+              e.target.value = value;
+            }}
+            onBlur={() => {
+              if (!item.name) {
+                setHasStartedTyping(false);
+              }
+            }}
           />
-        ) : (
-          <div className="relative flex items-center">
-            <input
-              type="number"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={Math.floor(splitAmount)}
-              className="w-24 p-2 rounded bg-gray-100 text-gray-600 cursor-default h-10"
-              readOnly
-            />
-            <Lock className="w-4 h-4 text-white absolute right-2" />
-          </div>
-        )}
+        </div>
+        <div>
+          {item.isFixed ? (
+            <div className="flex items-center justify-center">
+              <input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={item.amount === 0 ? '' : Math.floor(item.amount)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  const newAmount = value ? Number(value) : 0;
+                  onAmountChange(newAmount);
+                }}
+                className="w-20 bg-transparent text-white font-inter font-black text-2xl placeholder-white/10 text-center focus:outline-none pl-0"
+                placeholder="0"
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                onFocus={() => setIsAmountFocused(true)}
+                onBlur={() => setIsAmountFocused(false)}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={Math.floor(splitAmount)}
+                className="w-20 bg-transparent text-white font-inter font-black text-2xl cursor-default text-center focus:outline-none"
+                readOnly
+              />
+            </div>
+          )}
+        </div>
       </div>
       <button
-          onClick={() => item.isFixed && onToggleType()}
-          className={`p-2 rounded shrink-0 h-10 w-10 flex items-center justify-center transition-colors ${
-            item.isFixed 
-              ? 'bg-white' 
-              : 'bg-[#005a8f] hover:bg-[#004a7f]'
-          }`}
-          title="Fixed Amount"
-        >
-          <DollarSign className={`w-5 h-5 ${item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
-        </button>
+        onClick={onToggleType}
+        className={`p-2 rounded-full shrink-0 h-16 w-16 flex flex-col items-center justify-center transition-colors focus:outline-none ${
+          item.isFixed
+            ? 'bg-white'
+            : 'bg-transparent hover:bg-white/10'
+        }`}
+      >
+        <DollarSign className={`w-[20px] h-[20px] ${item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
+        <span className={`font-inter font-normal text-[10px] mt-0.5 ${item.isFixed ? 'text-[#0069A4]' : 'text-white'}`}>Fixed</span>
+      </button>
     </div>
   );
 });
