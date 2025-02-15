@@ -142,13 +142,13 @@ const BudgetSplitter = () => {
 
   return (
     <div style={{ backgroundColor: '#0A91CC' }} className="min-h-screen">
-      <div style={{ backgroundColor: '#0A91CC' }} className="flex flex-col items-center w-full px-6 py-10">
+      <div style={{ backgroundColor: '#0A91CC' }} className="flex flex-col items-center w-full px-4 sm:px-6 py-6 sm:py-10">
         <Container>
           <h1 className="header mb-4 text-center">Shplit.money</h1>
-          <div className="flex items-center gap-2 bg-[#0069A4] h-[72px] rounded-full w-full">
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <label htmlFor="income" className="text-white/50 text-sm">Income</label>
-              <div className="w-full">
+          <div className="flex items-center gap-2 bg-[#0069A4] min-h-[60px] sm:h-[72px] rounded-2xl sm:rounded-full w-full px-4">
+            <div className="flex-1 flex flex-col items-center justify-center py-3">
+              <label htmlFor="income" className="text-white/50 text-xs sm:text-sm">Income</label>
+              <div className="w-full max-w-[200px]">
                 <input
                   type="number"
                   inputMode="numeric"

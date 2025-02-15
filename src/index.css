@@ -28,8 +28,14 @@ input[type="number"] {
 .header {
   font-family: 'Inter';
   font-weight: 900;
-  font-size: 64px;
+  font-size: 36px;
   color: #FFFFFF;
+}
+
+@media (min-width: 640px) {
+  .header {
+    font-size: 64px;
+  }
 }
 
 .sub {
