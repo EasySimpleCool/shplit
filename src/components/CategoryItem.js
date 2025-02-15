@@ -26,7 +26,7 @@ const CategoryItem = memo(({
         <Percent className={`w-[20px] h-[20px] ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`} />
         <span className={`font-inter font-normal text-[10px] mt-0.5 ${!item.isFixed ? 'text-[#0069A4]' : 'text-white'}`}>Shplit</span>
       </button>
-      <div className="flex-1 flex flex-col items-center justify-center py-2">
+      <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full">
           <input
             type="text"
@@ -35,7 +35,7 @@ const CategoryItem = memo(({
               setHasStartedTyping(true);
               onNameChange(e.target.value);
             }}
-            className="w-full bg-transparent text-white min-w-0 font-inter font-medium text-sm text-center placeholder-white/10 p-0 focus:outline-none"
+            className="w-full bg-transparent text-white/50 min-w-0 font-inter text-sm text-center placeholder-white/50 p-0 focus:outline-none"
             placeholder={hasStartedTyping ? "" : "Item name"}
             autoFocus={isLastAdded}
             onFocus={(e) => {
@@ -51,7 +51,7 @@ const CategoryItem = memo(({
             }}
           />
         </div>
-        <div className="mt-1">
+        <div>
           {item.isFixed ? (
             <div className="flex items-center justify-center">
               <input
@@ -61,14 +61,10 @@ const CategoryItem = memo(({
                 value={item.amount === 0 ? '' : Math.floor(item.amount)}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
-                  let newAmount = value ? Number(value) : 0;
-                  // Ensure amount doesn't exceed total budget
-                  if (newAmount > totalBudget) {
-                    newAmount = totalBudget;
-                  }
+                  const newAmount = value ? Number(value) : 0;
                   onAmountChange(newAmount);
                 }}
-                className="w-20 bg-transparent text-white font-inter font-black text-2xl placeholder-white/10 text-center focus:outline-none pl-0"
+                className="w-20 bg-transparent text-white font-inter font-black text-2xl placeholder-white/50 text-center focus:outline-none pl-0"
                 placeholder="0"
                 onKeyPress={(e) => {
                   if (!/[0-9]/.test(e.key)) {

@@ -27,8 +27,8 @@ const Category = memo(({
     >
       <Container>
         <div className="flex items-center justify-center mb-4 w-full">
-          <h2 className="text-xl capitalize text-white text-center">
-            {name} <span className="font-bold">${formatCurrency(totalBudget)}</span>
+          <h2 className="capitalize text-white text-center text-2xl">
+            {name} <span className="font-black">${formatCurrency(totalBudget)}</span>
           </h2>
         </div>
         
