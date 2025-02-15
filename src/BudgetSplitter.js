@@ -8,7 +8,7 @@ const BudgetSplitter = () => {
   const [lastAddedId, setLastAddedId] = useState(null);
   const [categories, setCategories] = useState({
     needs: { 
-      percentage: 40, 
+      percentage: 50, 
       items: []
     },
     wants: { 
@@ -16,7 +16,7 @@ const BudgetSplitter = () => {
       items: []
     },
     savings: { 
-      percentage: 30, 
+      percentage: 20, 
       items: [] 
     }
   });
@@ -84,21 +84,25 @@ const BudgetSplitter = () => {
     <div style={{ backgroundColor: '#0A91CC' }} className="min-h-screen">
       <div style={{ backgroundColor: '#0A91CC' }} className="flex flex-col items-center w-full px-6 py-10">
         <Container>
-          <h1 className="text-2xl font-bold text-white mb-4">Shplit.money</h1>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={income}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                setIncome(value ? Number(value) : 0);
-              }}
-              className="p-2 pl-8 rounded text-black w-full h-10"
-              placeholder="Enter your income"
-            />
+          <h1 className="text-2xl font-bold text-white mb-4 text-center">Shplit.money</h1>
+          <div className="flex items-center gap-2 bg-[#0069A4] h-[72px] rounded-full w-full">
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <label htmlFor="income" className="text-white/50 text-sm mb-1">Income</label>
+              <div className="w-full">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={income}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    setIncome(value ? Number(value) : 0);
+                  }}
+                  className="w-full bg-transparent text-white font-inter font-black text-2xl text-center focus:outline-none"
+                  placeholder="Enter your income"
+                />
+              </div>
+            </div>
           </div>
         </Container>
       </div>

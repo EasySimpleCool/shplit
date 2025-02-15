@@ -50,7 +50,7 @@ const CategoryItem = memo(({
             }}
           />
         </div>
-        <div>
+        <div className="mt-1">
           {item.isFixed ? (
             <div className="flex items-center justify-center">
               <input
@@ -60,7 +60,11 @@ const CategoryItem = memo(({
                 value={item.amount === 0 ? '' : Math.floor(item.amount)}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
-                  const newAmount = value ? Number(value) : 0;
+                  let newAmount = value ? Number(value) : 0;
+                  // Ensure amount doesn't exceed total budget
+                  if (newAmount > totalBudget) {
+                    newAmount = totalBudget;
+                  }
                   onAmountChange(newAmount);
                 }}
                 className="w-20 bg-transparent text-white font-inter font-black text-2xl placeholder-white/10 text-center focus:outline-none pl-0"

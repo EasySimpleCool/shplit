@@ -23,11 +23,11 @@ const Category = memo(({
   return (
     <div 
       style={{ backgroundColor }}
-      className="flex flex-col items-center w-full px-6 py-10"
+      className="flex flex-col items-center w-full px-6 py-6"
     >
       <Container>
-        <div className="flex items-center mb-4 w-full">
-          <h2 className="text-xl capitalize text-white">
+        <div className="flex items-center justify-center mb-4 w-full">
+          <h2 className="text-xl capitalize text-white text-center">
             {name} <span className="font-bold">${formatCurrency(totalBudget)}</span>
           </h2>
         </div>
@@ -38,6 +38,7 @@ const Category = memo(({
               key={item.id}
               item={item}
               splitAmount={splitAmount}
+              totalBudget={totalBudget}
               isLastAdded={item.id === lastAddedId}
               onNameChange={(name) => onUpdateItem(name, item.id)}
               onAmountChange={(amount) => onUpdateItem(amount, item.id, true)}
