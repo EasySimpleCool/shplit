@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { DollarSign, Percent, Lock } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Container from './components/Container';
+import Category from './components/Category';
+import { formatCurrency } from './hooks/useBudgetCalculator';
 
 const BudgetSplitter = () => {
   const [income, setIncome] = useState(1000);
@@ -20,89 +21,55 @@ const BudgetSplitter = () => {
     }
   });
 
-  const calculateCategoryBudget = (category) => {
-    return (income * categories[category].percentage) / 100;
-  };
-
-  const calculateFixedTotal = (categoryItems) => {
-    return categoryItems
-      .filter(item => item.isFixed)
-      .reduce((sum, item) => sum + Number(item.amount), 0);
-  };
-
-  const calculateSplitAmounts = (categoryItems, totalBudget) => {
-    const fixedTotal = categoryItems
-      .filter(item => item.isFixed)
-      .reduce((sum, item) => sum + Number(item.amount), 0);
-    
-    const remainingBudget = Math.max(0, totalBudget - fixedTotal);
-    const splitItems = categoryItems.filter(item => !item.isFixed).length;
-    return {
-      fixedTotal,
-      remainingBudget,
-      splitAmount: splitItems > 0 ? Math.floor(remainingBudget / splitItems) : 0
-    };
-  };
-
-  const addItem = (categoryName, isFixed) => {
+  const addItem = useCallback((categoryName, isFixed) => {
     const id = Date.now();
-    const newItem = {
-      id,
-      name: '',
-      amount: 0,
-      isFixed: isFixed
-    };
-    
-    setCategories(prev => {
-      const updatedCategories = {
-        ...prev,
-        [categoryName]: {
-          ...prev[categoryName],
-          items: [...prev[categoryName].items, newItem]
-        }
-      };
-      
-      const category = updatedCategories[categoryName];
-      const totalBudget = Math.floor(calculateCategoryBudget(categoryName));
-      const { splitAmount } = calculateSplitAmounts(category.items, totalBudget);
-      
-      updatedCategories[categoryName].items = category.items.map(item => ({
-        ...item,
-        amount: item.isFixed ? item.amount : splitAmount
-      }));
-      
-      return updatedCategories;
-    });
-    
-    setLastAddedId(id);
-  };
-
-  const toggleItemType = (categoryName, itemId) => {
     setCategories(prev => {
       const category = prev[categoryName];
-      const totalBudget = Math.floor(calculateCategoryBudget(categoryName));
-      
-      const updatedItems = category.items.map(item => {
-        if (item.id === itemId) {
-          return { ...item, isFixed: !item.isFixed };
-        }
-        return item;
-      });
-
-      const { splitAmount } = calculateSplitAmounts(updatedItems, totalBudget);
+      const newItem = { id, name: '', amount: 0, isFixed };
+      const updatedItems = [...category.items, newItem];
       
       return {
         ...prev,
         [categoryName]: {
           ...category,
-          items: updatedItems.map(item => ({
-            ...item,
-            amount: item.isFixed ? item.amount : splitAmount
-          }))
+          items: updatedItems
         }
       };
     });
-  };
+    setLastAddedId(id);
+  }, []);
+
+  const updateItem = useCallback((categoryName, value, itemId, isAmount = false) => {
+    setCategories(prev => {
+      const category = prev[categoryName];
+      const updatedItems = category.items.map(item => 
+        item.id === itemId 
+          ? { ...item, [isAmount ? 'amount' : 'name']: value }
+          : item
+      );
+      
+      return {
+        ...prev,
+        [categoryName]: { ...category, items: updatedItems }
+      };
+    });
+  }, []);
+
+  const toggleItemType = useCallback((categoryName, itemId) => {
+    setCategories(prev => {
+      const category = prev[categoryName];
+      const updatedItems = category.items.map(item => 
+        item.id === itemId 
+          ? { ...item, isFixed: !item.isFixed }
+          : item
+      );
+      
+      return {
+        ...prev,
+        [categoryName]: { ...category, items: updatedItems }
+      };
+    });
+  }, []);
 
   useEffect(() => {
     if (lastAddedId) {
@@ -118,123 +85,36 @@ const BudgetSplitter = () => {
       <div style={{ backgroundColor: '#0A91CC' }} className="flex flex-col items-center w-full px-6 py-10">
         <Container>
           <h1 className="text-2xl font-bold text-white mb-4">Shplit.money</h1>
-          <input
-            type="text"
-            value={income}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '');
-              setIncome(value ? Number(value) : 0);
-            }}
-            className="p-2 rounded text-black w-full"
-            placeholder="Enter your income"
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={income}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                setIncome(value ? Number(value) : 0);
+              }}
+              className="p-2 pl-8 rounded text-black w-full h-10"
+              placeholder="Enter your income"
+            />
+          </div>
         </Container>
       </div>
 
-      {Object.entries(categories).map(([categoryName, category], index) => (
-        <div key={categoryName} 
-          style={{ backgroundColor: index % 2 === 0 ? '#007DB8' : '#0A91CC' }}
-          className="flex flex-col items-center w-full px-6 py-10"
-        >
-          <Container>
-            <div className="flex items-center mb-4 w-full">
-              <h2 className="text-xl capitalize text-white">
-                {categoryName} <span className="font-bold">${Math.floor(calculateCategoryBudget(categoryName))}</span>
-              </h2>
-            </div>
-            
-            <div className="space-y-2 w-full">
-              {category.items.map(item => (
-                <div key={item.id} className="flex items-center gap-2 bg-[#0069A4] p-2 rounded w-full">
-                  <input
-                    type="text"
-                    value={item.name}
-                    onChange={(e) => {
-                      const updatedItems = category.items.map(i => 
-                        i.id === item.id ? { ...i, name: e.target.value } : i
-                      );
-                      setCategories(prev => ({
-                        ...prev,
-                        [categoryName]: { ...category, items: updatedItems }
-                      }));
-                    }}
-                    className="flex-1 p-2 rounded text-black min-w-0"
-                    placeholder="Item name"
-                    autoFocus={item.id === lastAddedId}
-                    onFocus={(e) => e.target.select()}
-                  />
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-white">$</span>
-                    {item.isFixed ? (
-                      <input
-                        type="text"
-                        value={Math.floor(item.amount)}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setCategories(prev => {
-                            const updatedCategories = { ...prev };
-                            const items = [...prev[categoryName].items];
-                            const fixedItem = items.find(i => i.id === item.id);
-                            if (fixedItem) {
-                              fixedItem.amount = value ? Number(value) : 0;
-                            }
-                            const totalBudget = Math.floor(calculateCategoryBudget(categoryName));
-                            const { splitAmount } = calculateSplitAmounts(items, totalBudget);
-                            
-                            items.forEach(i => {
-                              if (!i.isFixed) {
-                                i.amount = splitAmount;
-                              }
-                            });
-                            
-                            updatedCategories[categoryName].items = items;
-                            return updatedCategories;
-                          });
-                        }}
-                        className="w-24 p-2 rounded text-black border border-transparent focus:border-blue-500 h-10"
-                        placeholder="Amount"
-                      />
-                    ) : (
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={Math.floor(item.amount)}
-                          className="w-24 p-2 rounded bg-gray-100 text-gray-600 cursor-default h-10"
-                          readOnly
-                        />
-                        <Lock className="w-4 h-4 text-white absolute right-2" />
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => toggleItemType(categoryName, item.id)}
-                    className="p-2 rounded bg-[#005a8f] hover:bg-[#004a7f] shrink-0 h-10 w-10 flex items-center justify-center"
-                    title={item.isFixed ? "Fixed Amount" : "Split Amount"}
-                  >
-                    {item.isFixed ? <DollarSign className="w-5 h-5 text-white" /> : <Percent className="w-5 h-5 text-white" />}
-                  </button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => addItem(categoryName, false)}
-                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
-              >
-                <Percent className="w-4 h-4 text-white" />
-                Add Split
-              </button>
-              <button
-                onClick={() => addItem(categoryName, true)}
-                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
-              >
-                <DollarSign className="w-4 h-4 text-white" />
-                Add Dollar
-              </button>
-            </div>
-          </Container>
-        </div>
+      {Object.entries(categories).map(([name, category], index) => (
+        <Category
+          key={name}
+          name={name}
+          category={category}
+          income={income}
+          backgroundColor={index % 2 === 0 ? '#007DB8' : '#0A91CC'}
+          onAddItem={(isFixed) => addItem(name, isFixed)}
+          onUpdateItem={(value, itemId, isAmount) => updateItem(name, value, itemId, isAmount)}
+          onToggleItemType={(itemId) => toggleItemType(name, itemId)}
+          lastAddedId={lastAddedId}
+        />
       ))}
     </div>
   );
