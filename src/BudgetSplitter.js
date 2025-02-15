@@ -191,7 +191,7 @@ const BudgetSplitter = () => {
                             return updatedCategories;
                           });
                         }}
-                        className="w-24 p-2 rounded text-black border border-transparent focus:border-blue-500"
+                        className="w-24 p-2 rounded text-black border border-transparent focus:border-blue-500 h-10"
                         placeholder="Amount"
                       />
                     ) : (
@@ -199,7 +199,7 @@ const BudgetSplitter = () => {
                         <input
                           type="text"
                           value={Math.floor(item.amount)}
-                          className="w-24 p-2 rounded bg-gray-100 text-gray-600 cursor-default"
+                          className="w-24 p-2 rounded bg-gray-100 text-gray-600 cursor-default h-10"
                           readOnly
                         />
                         <Lock className="w-4 h-4 text-white absolute right-2" />
@@ -208,7 +208,7 @@ const BudgetSplitter = () => {
                   </div>
                   <button
                     onClick={() => toggleItemType(categoryName, item.id)}
-                    className="p-2 rounded bg-[#005a8f] hover:bg-[#004a7f] shrink-0"
+                    className="p-2 rounded bg-[#005a8f] hover:bg-[#004a7f] shrink-0 h-10 w-10 flex items-center justify-center"
                     title={item.isFixed ? "Fixed Amount" : "Split Amount"}
                   >
                     {item.isFixed ? <DollarSign className="w-5 h-5 text-white" /> : <Percent className="w-5 h-5 text-white" />}
@@ -220,14 +220,14 @@ const BudgetSplitter = () => {
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => addItem(categoryName, false)}
-                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white"
+                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
               >
                 <Percent className="w-4 h-4 text-white" />
                 Add Split
               </button>
               <button
                 onClick={() => addItem(categoryName, true)}
-                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white"
+                className="flex-1 bg-[#0069A4] p-2 rounded-lg hover:bg-[#005a8f] flex items-center justify-center gap-2 text-white h-10"
               >
                 <DollarSign className="w-4 h-4 text-white" />
                 Add Dollar
