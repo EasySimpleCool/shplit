@@ -1,45 +1,39 @@
-# Implementation Plan for CategoryItem Responsive Fix
+# Password Manager Icons Removal Plan
 
-## Current Issues
-- On narrow screens (320px minimum width), the layout breaks due to fixed-width inputs
-- Amount inputs are set to w-20 (80px) which doesn't scale well
-- Name input doesn't utilize available space effectively
+## Problem
+Password manager browser extensions are detecting the itemname input fields as potential username/password fields and showing their icons, which is not desired for this use case.
 
-## Space Calculation (320px screen)
-- Left IconButton: 64px (w-16)
-- Right IconButton: 64px (w-16)
-- Gaps between elements: 8px × 2 = 16px
-- Total fixed width: 144px
-- Available space for content: 176px
+## Solution
+Add specific HTML attributes to the Input component that will prevent password managers from detecting these fields as potential username/password inputs.
 
-## Proposed Changes
+### Technical Changes
 
-1. Remove fixed widths from amount inputs:
-```diff
-- className="w-20 text-white font-black text-2xl text-center mx-auto"
-+ className="min-w-[60px] flex-1 text-white font-black text-2xl text-center"
-```
+1. Modify `src/components/shared/Input.js`:
+   - Add default attributes to the input element:
+     ```jsx
+     <input
+       autocomplete="off"
+       data-lpignore="true"
+       data-form-type="other"
+       // ... existing props
+     />
+     ```
+   These attributes will:
+   - `autocomplete="off"`: Prevent browser's built-in autocomplete suggestions
+   - `data-lpignore="true"`: Specifically prevent LastPass from detecting the field
+   - `data-form-type="other"`: Signal to password managers that this is not a login form field
 
-2. Optimize name input for better space utilization:
-```diff
-- className="text-white/50 text-sm text-center placeholder-white/50"
-+ className="text-white/50 text-sm text-center placeholder-white/50 w-full"
-```
+2. No changes needed to CategoryItem.js as these attributes will be automatically applied to all Input components.
 
-3. Adjust Stack component to better handle narrow widths:
-```diff
-- <Stack className="flex-1" gap="1">
-+ <Stack className="flex-1 min-w-0" gap="1">
-```
-
-## Expected Outcome
-- Inputs will scale with available space while maintaining minimum readability
-- Layout will remain intact on screens as narrow as 320px
-- Text will truncate gracefully if needed
-- Numbers will remain readable with minimum width of 60px
-
-## Implementation Steps
+### Implementation Steps
 1. Switch to Code mode to implement the changes
-2. Test on various screen widths (especially 320px)
-3. Verify that both fixed and split amount displays remain functional
-4. Ensure text input remains usable on narrow screens
+2. Update the Input component with the new attributes
+3. Test the changes to ensure:
+   - Password manager icons no longer appear
+   - Existing input functionality remains unchanged
+
+### Impact
+- ✅ Removes password manager icons from itemname inputs
+- ✅ No impact on existing functionality
+- ✅ Simple, maintainable solution
+- ✅ Works across different password managers

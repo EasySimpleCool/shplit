@@ -47,6 +47,9 @@ const Input = ({
       readOnly={readOnly}
       onFocus={handleFocus}
       onBlur={handleBlur}
+      autoComplete="off"
+      data-lpignore="true"
+      data-form-type="other"
       {...props}
     />
   );
