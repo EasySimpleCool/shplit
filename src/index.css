@@ -4,6 +4,41 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Static spacing tokens */
+  --static-0: 0px;
+  --static-4: 4px;
+  --static-8: 8px;
+  --static-16: 16px;
+  --static-24: 24px;
+  --static-40: 40px;
+  --static-64: 64px;
+  --static-80: 80px;
+
+  /* Fluid spacing tokens - Mobile defaults */
+  --fluid-sm: 8px;
+  --fluid-md: 24px;
+  --fluid-lg: 24px;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 768px) {
+  :root {
+    --fluid-sm: 16px;
+    --fluid-md: 32px;
+    --fluid-lg: 40px;
+  }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 1024px) {
+  :root {
+    --fluid-sm: 24px;
+    --fluid-md: 40px;
+    --fluid-lg: 64px;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

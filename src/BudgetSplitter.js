@@ -1,21 +1,51 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Container from './components/Container';
 import Category from './components/Category';
+import Stack from './components/layout/Stack';
+import Header from './components/shared/Header';
+import MoneyInput from './components/shared/MoneyInput';
+
 const BudgetSplitter = () => {
   const [income, setIncome] = useState(1000);
   const [lastAddedId, setLastAddedId] = useState(null);
+  const [isInfoVisible, setIsInfoVisible] = useState(() => {
+    return localStorage.getItem('shplit-info-banner-dismissed') !== 'true';
+  });
+
+  const handleInfoDismiss = () => {
+    setIsInfoVisible(false);
+    localStorage.setItem('shplit-info-banner-dismissed', 'true');
+  };
+
+  const handleInfoShow = () => {
+    setIsInfoVisible(true);
+    localStorage.setItem('shplit-info-banner-dismissed', 'false');
+  };
   const [categories, setCategories] = useState({
-    needs: { 
-      percentage: 50, 
+    needs: {
+      percentage: 50,
+      items: [
+        {
+          id: 1,
+          name: "Example shplit",
+          amount: 0,
+          isFixed: false
+        },
+        {
+          id: 2,
+          name: "Example fixed",
+          amount: 50,
+          isFixed: true
+        }
+      ]
+    },
+    wants: {
+      percentage: 30,
       items: []
     },
-    wants: { 
-      percentage: 30, 
+    savings: {
+      percentage: 20,
       items: []
-    },
-    savings: { 
-      percentage: 20, 
-      items: [] 
     }
   });
 
@@ -97,7 +127,7 @@ const BudgetSplitter = () => {
         [categoryName]: { ...category, items: updatedItems }
       };
     });
-  }, [income]); // Add income to dependencies since we use it in calculations
+  }, [income]);
 
   const removeLastItem = useCallback((categoryName) => {
     setCategories(prev => {
@@ -141,32 +171,22 @@ const BudgetSplitter = () => {
   }, [lastAddedId]);
 
   return (
-    <div style={{ backgroundColor: '#0A91CC' }} className="min-h-screen">
-      <div style={{ backgroundColor: '#0A91CC' }} className="flex flex-col items-center w-full px-4 sm:px-6 py-6 sm:py-10">
+    <div className="min-h-screen bg-[#0A91CC]">
+      {/* Header Section */}
+      <section className="w-full py-6">
         <Container>
-          <h1 className="header mb-4 text-center">Shplit.money</h1>
-          <div className="flex items-center gap-2 bg-[#0069A4] min-h-[60px] sm:h-[72px] rounded-2xl sm:rounded-full w-full px-4">
-            <div className="flex-1 flex flex-col items-center justify-center py-3">
-              <label htmlFor="income" className="text-white/50 text-xs sm:text-sm">Income</label>
-              <div className="w-full max-w-[200px]">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={income}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    setIncome(value ? Number(value) : 0);
-                  }}
-                  className="w-full bg-transparent text-white font-inter font-black text-2xl text-center focus:outline-none"
-                  placeholder="Enter your income"
-                />
-              </div>
-            </div>
-          </div>
+          <Stack gap="4">
+            <Header onInfoClick={handleInfoShow} />
+            <MoneyInput 
+              value={income}
+              onChange={setIncome}
+              label="Monthly pay"
+            />
+          </Stack>
         </Container>
-      </div>
+      </section>
 
+      {/* Category Sections */}
       {Object.entries(categories).map(([name, category], index) => (
         <Category
           key={name}
@@ -179,6 +199,8 @@ const BudgetSplitter = () => {
           onToggleItemType={(itemId) => toggleItemType(name, itemId)}
           onRemoveItem={() => removeLastItem(name)}
           lastAddedId={lastAddedId}
+          isInfoVisible={isInfoVisible}
+          onInfoDismiss={handleInfoDismiss}
         />
       ))}
     </div>
