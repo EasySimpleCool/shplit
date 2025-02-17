@@ -17,13 +17,17 @@ const BudgetSplitter = () => {
     localStorage.setItem('shplit-info-banner-dismissed', 'true');
   };
 
-  const handleInfoShow = () => {
-    setIsInfoVisible(true);
-    localStorage.setItem('shplit-info-banner-dismissed', 'false');
+  const handleInfoToggle = () => {
+    setIsInfoVisible(prev => {
+      const newValue = !prev;
+      localStorage.setItem('shplit-info-banner-dismissed', (!newValue).toString());
+      return newValue;
+    });
   };
+
   const [categories, setCategories] = useState({
     needs: {
-      percentage: 50,
+      percentage: 40,
       items: [
         {
           id: 1,
@@ -44,7 +48,7 @@ const BudgetSplitter = () => {
       items: []
     },
     savings: {
-      percentage: 20,
+      percentage: 30,
       items: []
     }
   });
@@ -176,7 +180,7 @@ const BudgetSplitter = () => {
       <section className="w-full py-6">
         <Container>
           <Stack gap="4">
-            <Header onInfoClick={handleInfoShow} />
+            <Header onInfoClick={handleInfoToggle} />
             <MoneyInput 
               value={income}
               onChange={setIncome}

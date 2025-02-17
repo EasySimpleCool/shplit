@@ -6,6 +6,28 @@ import ButtonGroup from './shared/ButtonGroup';
 import InfoBanner from './shared/InfoBanner';
 import { useBudgetCalculator, formatCurrency } from '../hooks/useBudgetCalculator';
 
+const getCategoryInfo = (name) => {
+  switch (name) {
+    case 'needs':
+      return {
+        examples: 'Rent, Phone bill, Insurance, Internet, Water, Transport',
+        description: 'These are your essential monthly expenses that you can\'t avoid'
+      };
+    case 'wants':
+      return {
+        examples: 'Beers/Drinks, Netflix, Clothes, Apps',
+        description: 'Fun money for entertainment and lifestyle choices'
+      };
+    case 'savings':
+      return {
+        examples: 'Savings, Crypto, Stocks, Flights, New Phone',
+        description: 'Money for future goals and investments'
+      };
+    default:
+      return { examples: '', description: '' };
+  }
+};
+
 const Category = memo(({
   name,
   category,
@@ -25,6 +47,8 @@ const Category = memo(({
     category.items
   );
 
+  const { examples, description } = getCategoryInfo(name);
+
   return (
     <section 
       style={{ backgroundColor }}
@@ -32,17 +56,20 @@ const Category = memo(({
     >
       <Container>
         <Stack gap="static-16">
-          <h2 className="capitalize text-white text-center text-2xl">
-            {name} <span className="font-black">${formatCurrency(totalBudget)}</span>
-          </h2>
+          <Stack gap="static-0">
+            <h2 className="capitalize text-white text-center body m-0">
+              {name} {category.percentage}%
+            </h2>
+            <div className="text-white text-center header m-0">
+              ${formatCurrency(totalBudget)}
+            </div>
+          </Stack>
           
-          {name === 'needs' && isInfoVisible && (
-            <InfoBanner
-              message="Shplit items will divide the remaining amount of money up evenly. Fixed items have a specific dollar value."
-              isVisible={isInfoVisible}
-              onDismiss={onInfoDismiss}
-            />
-          )}
+          <InfoBanner
+            message={`${description}. Examples: ${examples}`}
+            isVisible={isInfoVisible}
+            onDismiss={onInfoDismiss}
+          />
 
           {category.items.length > 0 && (
             <Stack gap="static-4">
@@ -64,7 +91,6 @@ const Category = memo(({
           <ButtonGroup 
             onAddSplit={() => onAddItem(false)}
             onRemoveSplit={onRemoveItem}
-            onAddFixed={() => onAddItem(true)}
           />
         </Stack>
       </Container>

@@ -1,107 +1,111 @@
-# Tooltip Component Implementation Plan
+# Tooltip Toggle Implementation Plan
 
-## Component Structure
-
-### TooltipComponent
-A reusable tooltip component that can be positioned relative to any trigger element.
-
-```jsx
-<Tooltip 
-  content="Your tooltip content"
-  isOpen={boolean}
-  onClose={() => {}}
->
-  <TriggerElement />
-</Tooltip>
-```
-
-## Features
-1. **Trigger Element**
-   - Info icon by default (using Tabler icons)
-   - Support for custom trigger elements
-   - Accessible button behavior
-
-2. **Tooltip Content**
-   - Text content
-   - Close button in top right
-   - Dark background
-   - Proper padding and spacing
-   - Box shadow for depth
-   - Optional arrow pointer
-
-3. **Positioning**
-   - Smart positioning relative to trigger
-   - Stays within viewport
-   - Smooth enter/exit animations
-
-4. **Accessibility**
-   - ARIA attributes for screen readers
-   - Keyboard navigation support
-   - Focus management
-   - Close on Escape key
-
-## Technical Implementation
-
-### 1. Component Files
-- `src/components/shared/Tooltip/`
-  - `Tooltip.js` - Main component
-  - `TooltipTrigger.js` - Default info icon trigger
-  - `TooltipContent.js` - Content container with close button
-
-### 2. Styling
-Use Tailwind CSS for:
-- Dark background color
-- Border radius
-- Shadow effects
-- Positioning
-- Transitions/animations
-
-### 3. State Management
-- Control open/closed state
-- Handle click outside
-- Position calculations
-
-### 4. Usage Example
-```jsx
-// Basic usage with default info icon
-<Tooltip content="Shplit items will divide the remaining amount of money up evenly. Fixed items have a specific dollar value.">
-  <span>Need help?</span>
-</Tooltip>
-
-// Custom trigger
-<Tooltip content="Custom tooltip content">
-  <CustomTrigger />
-</Tooltip>
-```
+## Overview
+Add functionality to toggle all tooltips on/off via the info button in the top left of the application. This will enhance user experience by allowing users to hide tooltips once they're familiar with the interface.
 
 ## Implementation Steps
 
-1. Create base component structure
-2. Implement positioning logic
-3. Add default info icon trigger
-4. Style tooltip content container
-5. Add close button functionality
-6. Implement accessibility features
-7. Add animations
-8. Create documentation and examples
+1. Add Global Tooltip State
+   - Add `isTooltipsEnabled` state to BudgetSplitter component
+   - Initialize from localStorage with key 'shplit-tooltips-enabled'
+   - Default to true if no preference is stored
 
-## Design Considerations
+2. Modify Info Button Behavior
+   - Update `handleInfoShow` to also enable tooltips
+   - Add new `handleTooltipToggle` function that:
+     - Toggles `isTooltipsEnabled` state
+     - Persists preference to localStorage
+   - Update Header component to use `handleTooltipToggle` instead of `handleInfoShow`
 
-1. **Visual Design**
-   - Match existing design system
-   - Dark background (#1F2937)
-   - Proper spacing (p-4)
-   - Rounded corners
-   - Subtle shadow
+3. Update Tooltip Component
+   - Add `enabled` prop to Tooltip component
+   - Modify Tooltip to respect this prop:
+     - When `enabled={false}`, don't show tooltip content
+     - Keep trigger element visible but non-interactive
+   - Pass `isTooltipsEnabled` from BudgetSplitter through component tree
 
-2. **Interaction Design**
-   - Smooth open/close transitions
-   - Click outside to close
-   - Escape key to close
-   - Focus management
+4. Component Updates
+   - Update BudgetSplitter to pass `isTooltipsEnabled` to Category components
+   - Update Category to pass `isTooltipsEnabled` to any child components using tooltips
 
-3. **Accessibility**
-   - ARIA labels
-   - Keyboard navigation
-   - Screen reader support
-   - Focus trapping when open
+## Code Changes
+
+### BudgetSplitter.js
+```javascript
+const [isTooltipsEnabled, setIsTooltipsEnabled] = useState(() => {
+  return localStorage.getItem('shplit-tooltips-enabled') !== 'false';
+});
+
+const handleTooltipToggle = () => {
+  setIsTooltipsEnabled(prev => {
+    const newValue = !prev;
+    localStorage.setItem('shplit-tooltips-enabled', newValue.toString());
+    return newValue;
+  });
+};
+```
+
+### Header.js
+```javascript
+const Header = ({ onInfoClick }) => (
+  <div className="mb-4 relative flex items-center justify-center">
+    <button
+      onClick={onInfoClick}
+      className="absolute left-0 text-white hover:text-gray-200 focus:outline-none"
+      aria-label="Toggle tooltips"
+    >
+      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+      </svg>
+    </button>
+    <h1 className="emphasis">Shplit</h1>
+  </div>
+);
+```
+
+### Tooltip.js
+```javascript
+const Tooltip = ({ 
+  children, 
+  content, 
+  className = '',
+  defaultOpen = false,
+  enabled = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  // Early return if tooltips are disabled
+  if (!enabled) {
+    return (
+      <div className={`relative inline-block ${className}`}>
+        {children}
+      </div>
+    );
+  }
+
+  // Rest of existing implementation...
+};
+```
+
+## Testing Plan
+
+1. Verify Initial State
+   - On first load, tooltips should be enabled
+   - Tooltip visibility state should persist across page reloads
+
+2. Test Toggle Functionality
+   - Clicking info button should toggle all tooltips
+   - When disabled, tooltip triggers should not show tooltips
+   - When re-enabled, tooltips should work as before
+
+3. Test Edge Cases
+   - Verify tooltips close properly when disabled while some are open
+   - Check that tooltip state persists correctly in localStorage
+   - Ensure toggle works with multiple tooltips on screen
+
+## Migration Notes
+
+This change is backward compatible as:
+- Default enabled state is true
+- No changes to existing tooltip trigger behavior when enabled
+- All changes are additive to existing implementation

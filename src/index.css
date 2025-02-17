@@ -60,20 +60,21 @@ input[type="number"] {
 }
 
 /* Typography */
-.header {
+.emphasis {
   font-family: 'Inter';
   font-weight: 900;
-  font-size: 36px;
+  font-size: 64px;
   color: #FFFFFF;
 }
 
-@media (min-width: 640px) {
-  .header {
-    font-size: 64px;
-  }
+.header {
+  font-family: 'Inter';
+  font-weight: 900;
+  font-size: 40px;
+  color: #FFFFFF;
 }
 
-.sub {
+.subheader {
   font-family: 'Inter';
   font-weight: 900;
   font-size: 24px;
@@ -82,8 +83,8 @@ input[type="number"] {
 
 .body {
   font-family: 'Inter';
-  font-weight: 500;
-  font-size: 12px;
+  font-weight: 400;
+  font-size: 16px;
   color: #FFFFFF;
 }
 
@@ -97,6 +98,6 @@ input[type="number"] {
 .tiny {
   font-family: 'Inter';
   font-weight: 400;
-  font-size: 8px;
+  font-size: 10px;
   color: #FFFFFF;
 }

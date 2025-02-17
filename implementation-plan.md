@@ -1,39 +1,70 @@
-# Password Manager Icons Removal Plan
+# Implementation Plan for UI Improvements
 
-## Problem
-Password manager browser extensions are detecting the itemname input fields as potential username/password fields and showing their icons, which is not desired for this use case.
+## 1. Vertical Category Headers with Percentages
 
-## Solution
-Add specific HTML attributes to the Input component that will prevent password managers from detecting these fields as potential username/password inputs.
+### Changes Required:
+- Modify Category.js to update header format
+- Add percentage to category label (e.g., "Need 40%")
+- Ensure proper vertical spacing between categories
+- Update Container.js if needed for layout changes
 
-### Technical Changes
+### Technical Details:
+- Use flexbox column layout for vertical stacking
+- Format: `${categoryName} ${percentage}%`
+- Maintain existing styling/theming
 
-1. Modify `src/components/shared/Input.js`:
-   - Add default attributes to the input element:
-     ```jsx
-     <input
-       autocomplete="off"
-       data-lpignore="true"
-       data-form-type="other"
-       // ... existing props
-     />
-     ```
-   These attributes will:
-   - `autocomplete="off"`: Prevent browser's built-in autocomplete suggestions
-   - `data-lpignore="true"`: Specifically prevent LastPass from detecting the field
-   - `data-form-type="other"`: Signal to password managers that this is not a login form field
+## 2. Add InfoBanner Components
 
-2. No changes needed to CategoryItem.js as these attributes will be automatically applied to all Input components.
+### Changes Required:
+- Add InfoBanner component to each category section
+- Create content for each category type:
+  
+  #### Need (40%):
+  - Essential living expenses
+  - Examples: "Rent, Phone bill, Insurance, Internet, Water, Transport"
+  - Context: "These are your essential monthly expenses that you can't avoid"
 
-### Implementation Steps
-1. Switch to Code mode to implement the changes
-2. Update the Input component with the new attributes
-3. Test the changes to ensure:
-   - Password manager icons no longer appear
-   - Existing input functionality remains unchanged
+  #### Want (30%):
+  - Non-essential expenses
+  - Examples: "Beers/Drinks, Netflix, Clothes, Apps"
+  - Context: "Fun money for entertainment and lifestyle choices"
 
-### Impact
-- ✅ Removes password manager icons from itemname inputs
-- ✅ No impact on existing functionality
-- ✅ Simple, maintainable solution
-- ✅ Works across different password managers
+  #### Save (30%):
+  - Long-term savings and investments
+  - Examples: "Savings, Crypto, Stocks, Flights, New Phone"
+  - Context: "Money for future goals and investments"
+
+### Technical Details:
+- Use existing InfoBanner component
+- Position banner below category header
+- Ensure responsive design
+- Maintain consistent styling
+
+## 3. Remove Add Fixed Button
+
+### Changes Required:
+- Remove "Add Fixed" button from UI
+- Clean up any related code
+- Ensure no layout issues after removal
+
+## Implementation Steps:
+
+1. Update Category Component
+   - Modify header layout
+   - Add percentage to labels
+   - Integrate InfoBanner
+   - Remove fixed button
+
+2. Update Container Layout
+   - Adjust for vertical stacking
+   - Ensure proper spacing
+
+3. Test and Verify
+   - Check responsive behavior
+   - Verify InfoBanner content
+   - Ensure smooth transitions
+
+## Notes:
+- Maintain existing color scheme and styling
+- Ensure accessibility standards
+- Keep performance in mind with new InfoBanner components

@@ -8,7 +8,7 @@ const IconButton = ({ icon: Icon, label, isActive, onClick }) => (
     }`}
   >
     <Icon className={`w-[20px] h-[20px] ${isActive ? 'text-[#0069A4]' : 'text-white'}`} />
-    <span className={`font-inter font-normal text-[10px] mt-0.5 ${isActive ? 'text-[#0069A4]' : 'text-white'}`}>
+    <span className={`tiny mt-0.5 ${isActive ? 'text-[#0069A4] !text-[#0069A4]' : 'text-white'}`}>
       {label}
     </span>
   </button>
