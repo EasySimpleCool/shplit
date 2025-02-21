@@ -4,6 +4,7 @@ import Category from './components/Category';
 import Stack from './components/layout/Stack';
 import Header from './components/shared/Header';
 import MoneyInput from './components/shared/MoneyInput';
+import PercentageSplits from './components/shared/PercentageSplits';
 
 const BudgetSplitter = () => {
   const [income, setIncome] = useState(1000);
@@ -25,8 +26,9 @@ const BudgetSplitter = () => {
     });
   };
 
-  const [categories, setCategories] = useState({
-    needs: {
+  const [categories, setCategories] = useState([
+    {
+      id: 'needs',
       percentage: 40,
       items: [
         {
@@ -43,49 +45,57 @@ const BudgetSplitter = () => {
         }
       ]
     },
-    wants: {
+    {
+      id: 'wants',
       percentage: 30,
       items: []
     },
-    savings: {
+    {
+      id: 'savings',
       percentage: 30,
       items: []
     }
-  });
+  ]);
 
-  const addItem = useCallback((categoryName, isFixed) => {
+  const findCategoryIndex = useCallback((categoryId) => {
+    return categories.findIndex(cat => cat.id === categoryId);
+  }, [categories]);
+
+  const addItem = useCallback((categoryId, isFixed) => {
     const id = Date.now();
     setCategories(prev => {
-      const category = prev[categoryName];
+      const categoryIndex = prev.findIndex(cat => cat.id === categoryId);
+      if (categoryIndex === -1) return prev;
+
+      const newCategories = [...prev];
+      const category = { ...newCategories[categoryIndex] };
       const newItem = { id, name: '', amount: 0, isFixed };
-      const updatedItems = [...category.items, newItem];
       
-      return {
-        ...prev,
-        [categoryName]: {
-          ...category,
-          items: updatedItems
-        }
-      };
+      category.items = [...category.items, newItem];
+      newCategories[categoryIndex] = category;
+      
+      return newCategories;
     });
     setLastAddedId(id);
   }, []);
 
-  const updateItem = useCallback((categoryName, value, itemId, isAmount = false) => {
+  const updateItem = useCallback((categoryId, value, itemId, isAmount = false) => {
     setCategories(prev => {
-      const category = prev[categoryName];
+      const categoryIndex = prev.findIndex(cat => cat.id === categoryId);
+      if (categoryIndex === -1) return prev;
+
+      const newCategories = [...prev];
+      const category = { ...newCategories[categoryIndex] };
       
       if (!isAmount) {
         // If updating name, just update it directly
-        const updatedItems = category.items.map(item =>
+        category.items = category.items.map(item =>
           item.id === itemId
             ? { ...item, name: value }
             : item
         );
-        return {
-          ...prev,
-          [categoryName]: { ...category, items: updatedItems }
-        };
+        newCategories[categoryIndex] = category;
+        return newCategories;
       }
 
       // Calculate total budget for this category
@@ -96,15 +106,13 @@ const BudgetSplitter = () => {
       
       if (!currentItem?.isFixed) {
         // If not a fixed item, update normally
-        const updatedItems = category.items.map(item =>
+        category.items = category.items.map(item =>
           item.id === itemId
             ? { ...item, amount: value }
             : item
         );
-        return {
-          ...prev,
-          [categoryName]: { ...category, items: updatedItems }
-        };
+        newCategories[categoryIndex] = category;
+        return newCategories;
       }
 
       // Calculate total of other fixed items
@@ -120,48 +128,132 @@ const BudgetSplitter = () => {
       const newAmount = Math.min(Number(value) || 0, maxAllowed);
 
       // Update items with the constrained amount
-      const updatedItems = category.items.map(item =>
+      category.items = category.items.map(item =>
         item.id === itemId
           ? { ...item, amount: newAmount }
           : item
       );
-
-      return {
-        ...prev,
-        [categoryName]: { ...category, items: updatedItems }
-      };
+      
+      newCategories[categoryIndex] = category;
+      return newCategories;
     });
   }, [income]);
 
-  const removeLastItem = useCallback((categoryName) => {
+  const removeLastItem = useCallback((categoryId) => {
     setCategories(prev => {
-      const category = prev[categoryName];
-      const updatedItems = [...category.items];
-      updatedItems.pop(); // Remove the last item
+      const categoryIndex = prev.findIndex(cat => cat.id === categoryId);
+      if (categoryIndex === -1) return prev;
+
+      const newCategories = [...prev];
+      const category = { ...newCategories[categoryIndex] };
+      category.items = category.items.slice(0, -1);
       
-      return {
-        ...prev,
-        [categoryName]: {
-          ...category,
-          items: updatedItems
-        }
-      };
+      newCategories[categoryIndex] = category;
+      return newCategories;
     });
   }, []);
 
-  const toggleItemType = useCallback((categoryName, itemId) => {
+  const handlePercentageChange = useCallback((categoryId, newPercentage) => {
     setCategories(prev => {
-      const category = prev[categoryName];
-      const updatedItems = category.items.map(item => 
+      const categoryIndex = prev.findIndex(cat => cat.id === categoryId);
+      if (categoryIndex === -1) return prev;
+
+      const oldPercentage = prev[categoryIndex].percentage;
+      const difference = newPercentage - oldPercentage;
+      
+      // If decreasing or no change, just update the category
+      if (difference <= 0) {
+        return prev.map((category, index) => 
+          index === categoryIndex 
+            ? { ...category, percentage: newPercentage }
+            : category
+        );
+      }
+      
+      // Calculate what the total would be with the new percentage
+      const newTotal = prev.reduce((sum, cat, idx) => 
+        idx === categoryIndex ? sum + newPercentage : sum + cat.percentage
+      , 0);
+      
+      // If the new total wouldn't exceed 100%, just update the category
+      if (newTotal <= 100) {
+        return prev.map((category, index) => 
+          index === categoryIndex 
+            ? { ...category, percentage: newPercentage }
+            : category
+        );
+      }
+      
+      // If we would exceed 100%, we need to redistribute
+      const otherTotal = prev.reduce((sum, cat, idx) => 
+        idx === categoryIndex ? sum : sum + cat.percentage, 0);
+      
+      // Constrain the new percentage to not exceed 100% total
+      const maxAllowedPercentage = 100 - otherTotal;
+      const constrainedNewPercentage = Math.min(newPercentage, maxAllowedPercentage);
+      
+      // If we had to constrain the percentage, don't redistribute
+      if (constrainedNewPercentage !== newPercentage) {
+        return prev.map((category, index) => 
+          index === categoryIndex 
+            ? { ...category, percentage: constrainedNewPercentage }
+            : category
+        );
+      }
+      
+      // Get indices of other categories
+      const otherIndices = prev
+        .map((_, index) => index)
+        .filter(index => index !== categoryIndex);
+      
+      // Calculate total percentage of other categories
+      const currentOtherTotal = otherIndices
+        .reduce((sum, index) => sum + prev[index].percentage, 0);
+      
+      // If there are no other categories or their total is 0, we can't redistribute
+      if (currentOtherTotal === 0) {
+        return prev.map((category, index) => 
+          index === categoryIndex 
+            ? { ...category, percentage: constrainedNewPercentage }
+            : category
+        );
+      }
+      
+      // Redistribute the difference proportionally to prevent exceeding 100%
+      return prev.map((category, index) => {
+        if (index === categoryIndex) {
+          return { ...category, percentage: constrainedNewPercentage };
+        }
+        
+        const proportion = category.percentage / currentOtherTotal;
+        const reduction = difference * proportion;
+        const newCategoryPercentage = Math.max(0, Math.round(
+          category.percentage - reduction
+        ));
+        
+        return {
+          ...category,
+          percentage: newCategoryPercentage
+        };
+      });
+    });
+  }, []);
+
+  const toggleItemType = useCallback((categoryId, itemId) => {
+    setCategories(prev => {
+      const categoryIndex = prev.findIndex(cat => cat.id === categoryId);
+      if (categoryIndex === -1) return prev;
+
+      const newCategories = [...prev];
+      const category = { ...newCategories[categoryIndex] };
+      category.items = category.items.map(item => 
         item.id === itemId 
           ? { ...item, isFixed: !item.isFixed }
           : item
       );
       
-      return {
-        ...prev,
-        [categoryName]: { ...category, items: updatedItems }
-      };
+      newCategories[categoryIndex] = category;
+      return newCategories;
     });
   }, []);
 
@@ -179,29 +271,33 @@ const BudgetSplitter = () => {
       {/* Header Section */}
       <section className="w-full py-6">
         <Container>
-          <Stack gap="4">
+          <Stack gap="static-16">
             <Header onInfoClick={handleInfoToggle} />
             <MoneyInput 
               value={income}
               onChange={setIncome}
               label="Monthly pay"
             />
+            <PercentageSplits
+              categories={categories}
+              onPercentageChange={handlePercentageChange}
+            />
           </Stack>
         </Container>
       </section>
 
       {/* Category Sections */}
-      {Object.entries(categories).map(([name, category], index) => (
+      {categories.map((category, index) => (
         <Category
-          key={name}
-          name={name}
+          key={category.id}
+          name={category.id}
           category={category}
           income={income}
           backgroundColor={index % 2 === 0 ? '#007DB8' : '#0A91CC'}
-          onAddItem={(isFixed) => addItem(name, isFixed)}
-          onUpdateItem={(value, itemId, isAmount) => updateItem(name, value, itemId, isAmount)}
-          onToggleItemType={(itemId) => toggleItemType(name, itemId)}
-          onRemoveItem={() => removeLastItem(name)}
+          onAddItem={(isFixed) => addItem(category.id, isFixed)}
+          onUpdateItem={(value, itemId, isAmount) => updateItem(category.id, value, itemId, isAmount)}
+          onToggleItemType={(itemId) => toggleItemType(category.id, itemId)}
+          onRemoveItem={() => removeLastItem(category.id)}
           lastAddedId={lastAddedId}
           isInfoVisible={isInfoVisible}
           onInfoDismiss={handleInfoDismiss}

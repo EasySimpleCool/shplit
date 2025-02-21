@@ -6,8 +6,8 @@ import ButtonGroup from './shared/ButtonGroup';
 import InfoBanner from './shared/InfoBanner';
 import { useBudgetCalculator, formatCurrency } from '../hooks/useBudgetCalculator';
 
-const getCategoryInfo = (name) => {
-  switch (name) {
+const getCategoryInfo = (id) => {
+  switch (id) {
     case 'needs':
       return {
         examples: 'Rent, Phone bill, Insurance, Internet, Water, Transport',
@@ -56,9 +56,9 @@ const Category = memo(({
     >
       <Container>
         <Stack gap="static-16">
-          <Stack gap="static-0">
-            <h2 className="capitalize text-white text-center body m-0">
-              {name} {category.percentage}%
+          <Stack gap="static-2">
+            <h2 className="capitalize text-white text-center body m-0 mb-0">
+              {name}
             </h2>
             <div className="text-white text-center header m-0">
               ${formatCurrency(totalBudget)}
