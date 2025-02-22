@@ -10,14 +10,10 @@ on:
 # Sets permissions of the GITHUB_TOKEN
 permissions:
   contents: write
-  pages: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -48,12 +44,9 @@ jobs:
           npm run build
           mv package.json.bak package.json
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Deploy Preview
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          folder: build
-          branch: gh-pages
-          target-folder: preview/${{ env.SAFE_BRANCH_NAME }}
-          clean: true
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          destination_dir: preview/${{ env.SAFE_BRANCH_NAME }} 
