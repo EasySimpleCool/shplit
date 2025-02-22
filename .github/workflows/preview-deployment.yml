@@ -7,9 +7,17 @@ on:
       - 'bugfix/**'
       - 'refactor/**'
 
+# Sets permissions of the GITHUB_TOKEN
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,15 +39,21 @@ jobs:
           echo "SAFE_BRANCH_NAME=$SAFE_BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Build
+        env:
+          CI: false
         run: |
-          # Update homepage in package.json for the subdirectory
+          # Create a temporary package.json for this build
+          cp package.json package.json.bak
           node -e "const pkg=require('./package.json'); pkg.homepage='https://shplit.money/preview/${{ env.SAFE_BRANCH_NAME }}'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2))"
           npm run build
+          mv package.json.bak package.json
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
           branch: gh-pages
           target-folder: preview/${{ env.SAFE_BRANCH_NAME }}
-          clean: true 
+          clean: true
+          token: ${{ secrets.GITHUB_TOKEN }} 
