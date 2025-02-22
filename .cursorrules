@@ -1,0 +1,81 @@
+# Shplit Project Standards
+
+## Project Overview
+- React-based budget splitting application
+- Focus on clean UI/UX with real-time calculations
+- Mobile-first responsive design
+
+## Code Style
+- Use functional components with hooks
+- Prefix custom hooks with 'use' (e.g., useBudgetCalculator)
+- Component files: PascalCase (e.g., CategoryItem.js)
+- Utility files: camelCase (e.g., budgetUtils.js)
+- CSS: Tailwind classes, organized by layout→styling→states
+
+## Folder Organization
+```
+src/
+  components/         # React components
+    shared/          # Reusable components
+    layout/          # Layout components
+  contexts/          # React contexts
+  hooks/             # Custom hooks
+  utils/             # Helper functions
+```
+
+## Tech Stack
+- React 18+
+- Tailwind CSS
+- Lucide Icons
+- React Context for state
+
+## Project Standards
+- Components must be memoized when passing callbacks
+- Use IconButton for all icon interactions
+- Maintain dark blue (#0069A4) as primary color
+- Input fields: transparent bg, no borders
+- All amounts rounded to whole numbers
+
+## Workflow Rules
+- Branch naming: feature/, bugfix/, refactor/
+- Commit messages: [type]: description
+- PR template must be followed
+- Version: major.minor.patch
+
+## Reference Examples
+```jsx
+// Component Pattern
+const Component = memo(({ prop }) => {
+  const [state, setState] = useState(initial);
+  return <div className="standard-classes">{children}</div>;
+});
+
+// Hook Pattern
+const useCustomHook = (param) => {
+  const [state, setState] = useState(param);
+  return { state, setState };
+};
+```
+
+## Documentation
+- JSDoc for all components and hooks
+- README updates for new features
+- Maintain CHANGELOG.md
+
+## Debugging
+- Use console.group for related logs
+- Error boundaries around major sections
+- Performance monitoring with React DevTools
+
+## DOs and DON'Ts
+✅ DO:
+- Use semantic HTML elements
+- Implement proper keyboard navigation
+- Write unit tests for utilities
+- Follow accessibility guidelines
+
+❌ DON'T:
+- Mix different state management solutions
+- Use inline styles
+- Nest components deeply
+- Skip error handling 

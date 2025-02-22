@@ -4,6 +4,16 @@ import Stack from './layout/Stack';
 import IconButton from './shared/IconButton';
 import Input from './shared/Input';
 
+/**
+ * CategoryItem Component
+ * A list item component for budget items with toggle between fixed and split amounts.
+ * 
+ * Styling:
+ * - Container: Dark blue background (#0069A4) with rounded corners
+ * - Height: Fixed 72px height
+ * - Layout: Horizontal flex with gap between elements
+ * - Input Areas: Transparent inputs with white text
+ */
 const CategoryItem = memo(({
   item,
   onNameChange,
@@ -12,7 +22,13 @@ const CategoryItem = memo(({
   isLastAdded,
   splitAmount,
 }) => (
-  <div className="flex items-center gap-2 bg-[#0069A4] p-1 rounded-full w-full h-[72px]">
+  <div className="
+    flex items-center gap-2 
+    bg-[#0069A4] 
+    p-1 
+    rounded-full 
+    w-full h-[72px]
+  ">
     <IconButton
       icon={Percent}
       label="Shplit"
@@ -24,7 +40,13 @@ const CategoryItem = memo(({
         type="text"
         value={item.name}
         onChange={(e) => onNameChange(e.target.value)}
-        className="text-white/50 label text-center placeholder-white/50 w-full"
+        className="
+          text-white/50 
+          label 
+          text-center 
+          placeholder-white/50 
+          w-full
+        "
         placeholder="Item name"
         autoFocus={isLastAdded}
       />
@@ -39,7 +61,13 @@ const CategoryItem = memo(({
             const newAmount = value ? Number(value) : 0;
             onAmountChange(newAmount);
           }}
-          className="min-w-[60px] flex-1 text-white subheader text-center"
+          className="
+            min-w-[60px] 
+            flex-1 
+            text-white 
+            subheader 
+            text-center
+          "
           placeholder="0"
           onKeyPress={(e) => {
             if (!/[0-9]/.test(e.key)) {
@@ -51,7 +79,14 @@ const CategoryItem = memo(({
         <Input
           type="number"
           value={Math.floor(splitAmount)}
-          className="min-w-[60px] flex-1 text-white subheader text-center cursor-default"
+          className="
+            min-w-[60px] 
+            flex-1 
+            text-white 
+            subheader 
+            text-center 
+            cursor-default
+          "
           readOnly
         />
       )}
