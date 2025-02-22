@@ -22,3 +22,6 @@ yarn-error.log*
 
 # installer
 node-installer.msi
+
+# q-vault
+q-vault/
